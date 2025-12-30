@@ -6,8 +6,11 @@
     "match": "*://ynoproject.net/*",
     "source": "https://github.com/AcrylonitrileButadieneStyrene/yno-vc",
     "resource": {
-      "wasm": "http://localhost:3000/dist/yno_vc.wasm"
-    }
+      "wasm": "https://raw.githubusercontent.com/AcrylonitrileButadieneStyrene/yno-vc/refs/heads/builds/yno_vc.wasm"
+    },
+    "updateURL": "https://raw.githubusercontent.com/AcrylonitrileButadieneStyrene/yno-vc/refs/heads/builds/yno_vc.meta.js",
+    "downloadURL": "https://raw.githubusercontent.com/AcrylonitrileButadieneStyrene/yno-vc/refs/heads/builds/yno_vc.user.js",
+    "supportURL": "https://github.com/AcrylonitrileButadieneStyrene/yno-vc/issues"
   },
   "license": "MIT OR Apache-2.0",
   "devDependencies": {

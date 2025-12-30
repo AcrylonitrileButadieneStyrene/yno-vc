@@ -18,7 +18,7 @@ export default defineConfig({
     esbuild: {
         banner: `/*
  * This file has been minified to reduce its file size.
- * A readable copy of the code is accessible at the link in the @repository tag above.
+ * A readable copy of the code is accessible at the link in the @source tag above.
  */`,
         footer: ``,
     },

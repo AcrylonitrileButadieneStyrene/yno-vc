@@ -3,6 +3,7 @@
         "noEmit": true,
         "target": "es2017",
         "module": "es2022",
+        "moduleResolution": "bundler",
         "lib": [
             "esnext",
             "DOM"
