@@ -1,0 +1,30 @@
+on:
+  push:
+    branches:
+    - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v5
+    - uses: dtolnay/rust-toolchain@master
+      with:
+        toolchain: nightly
+    - uses: jetli/wasm-pack-action@v0.4.0
+    - uses: actions/setup-node@v6
+      with:
+        registry-url: 'https://npm.pkg.github.com'
+    - run: |
+        wasm-pack build --release
+        npm i -D
+        npx vite build
+    - uses: peaceiris/actions-gh-pages@v4
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_branch: builds
+        publish_dir: ./dist
