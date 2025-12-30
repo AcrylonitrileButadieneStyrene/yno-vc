@@ -1,0 +1,20 @@
+{
+  "name": "yno_vc",
+  "version": "0.0.1",
+  "userscript": {
+    "name": "YNO Voice Chat",
+    "match": "*://ynoproject.net/*",
+    "source": "https://github.com/AcrylonitrileButadieneStyrene/yno-vc",
+    "resource": {
+      "wasm": "http://localhost:3000/dist/yno_vc.wasm"
+    }
+  },
+  "license": "MIT OR Apache-2.0",
+  "devDependencies": {
+    "@violentmonkey/types": "^0.3.1",
+    "rollup-plugin-tla": "^0.0.2",
+    "vite": "^7.2.4",
+    "vite-plugin-monkey": "^7.1.8",
+    "vite-plugin-static-copy": "^3.1.4"
+  }
+}
