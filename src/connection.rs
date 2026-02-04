@@ -58,7 +58,7 @@ impl Receiver {
     pub async fn read(&mut self) -> Result<JsValue, String> {
         let chunk = self
             .0
-            .read_chunk(MAX_SIZE, false)
+            .read_chunk(MAX_SIZE)
             .await
             .map_err(crate::to_string)?
             .ok_or_else(|| "no chunk".to_string())?;
