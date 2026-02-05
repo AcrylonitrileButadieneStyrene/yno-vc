@@ -1,4 +1,4 @@
-import { Connection, Network } from "./wasm";
+import { Connection, Network, State } from "./wasm";
 import { Entry, playAudio } from "./entry";
 import { getKeyForPlayer, setKey } from "./keys";
 import { Player } from "./globals";
@@ -11,6 +11,8 @@ if (key == undefined)
     GM.setValue("secret_key", net.get_secret_key());
 const public_key = net.get_public_key();
 
+const state = new State();
+
 const connections = new Set<Entry>();
 
 const checkInterval = setInterval(() => {
@@ -18,9 +20,10 @@ const checkInterval = setInterval(() => {
         return;
     clearInterval(checkInterval);
 
+    state.init();
     patchChatSend();
     patchChatReceive();
-    patchPlayerEvents();
+    patchPlayerEvents(state);
 }, 1_000);
 
 function patchChatSend() {
@@ -188,4 +191,12 @@ export function onPlayerLeave(player: string) {
     entry.expiration = setTimeout(() => {
         connections.delete(entry);
     }, 30_000);
+}
+
+export function onPlayersCleared() {
+    for (const connection of [...connections]) {
+        connection.expiration = setTimeout(() => {
+            connections.delete(connection);
+        }, 30_000);
+    }
 }

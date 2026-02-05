@@ -1,36 +1,17 @@
-import { onPlayerJoin, onPlayerLeave } from "./index";
+import { State } from "./wasm";
+import { onPlayerJoin, onPlayerLeave, onPlayersCleared } from "./index";
 
-const players = new Set<string>();
+export function patchPlayerEvents(state: State) {
+    patch("addOrUpdatePlayerListEntry", player => state.on_player_join(player.uuid) && onPlayerJoin(player.uuid));
+    patch("removePlayerListEntry", player => state.on_player_leave(player) && onPlayerLeave(player));
+    patch("clearPlayerList", () => (state.on_players_cleared(), onPlayersCleared()));
+}
 
-export function patchPlayerEvents() {
-    {
-        const original = unsafeWindow.addOrUpdatePlayerListEntry;
-        unsafeWindow.addOrUpdatePlayerListEntry = function (playerList, player) {
-            if ((!playerList || playerList.id == "playerList") && !players.has(player.uuid)) {
-                players.add(player.uuid);
-                onPlayerJoin(player);
-            }
-
-            return original.apply(this, arguments);
-        }
-    }
-    {
-        const original = unsafeWindow.removePlayerListEntry;
-        unsafeWindow.removePlayerListEntry = function (playerList, player) {
-            if ((!playerList || playerList.id == "playerList") && players.has(player)) {
-                players.delete(player);
-                onPlayerLeave(player);
-            }
-
-            return original.apply(this, arguments);
-        }
-    }
-    {
-        const original = unsafeWindow.clearPlayerList;
-        unsafeWindow.clearPlayerList = function (playerList) {
-            if (!playerList || playerList.id == "playerList")
-                players.forEach(player => onPlayerLeave(player))
-            return original.apply(this, arguments);
-        }
-    }
+function patch(key: string, callback: (player: any) => void) {
+    const original = unsafeWindow[key];
+    unsafeWindow[key] = function (playerList: HTMLElement | undefined, player: any) {
+        if (!playerList || playerList.id == "playerList")
+            callback(player);
+        return original.apply(this, arguments);
+    };
 }

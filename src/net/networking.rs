@@ -32,7 +32,7 @@ impl Network {
                 endpoint.online().await;
                 Ok(Networking { endpoint })
             }
-            Err(err) => Err(crate::to_string(err)),
+            Err(err) => Err(super::to_string(err)),
         }
     }
 }
@@ -54,48 +54,48 @@ impl Networking {
         self.endpoint.secret_key().public().to_string()
     }
 
-    pub async fn connect(&self, public_key: String) -> Result<crate::Connection, String> {
+    pub async fn connect(&self, public_key: String) -> Result<super::Connection, String> {
         let id = PublicKey::from_str(&public_key).unwrap();
         let connection = self
             .endpoint
             .connect(id, ALPN)
             .await
-            .map_err(crate::to_string)?;
+            .map_err(super::to_string)?;
 
-        let (mut send, receive) = connection.open_bi().await.map_err(crate::to_string)?;
+        let (mut send, receive) = connection.open_bi().await.map_err(super::to_string)?;
 
         send.write_chunk(
-            bincode::encode_to_vec(crate::PacketData::Hello, bincode::config::standard())
+            bincode::encode_to_vec(super::PacketData::Hello, bincode::config::standard())
                 .unwrap()
                 .into(),
         )
         .await
-        .map_err(crate::to_string)?;
+        .map_err(super::to_string)?;
 
-        Ok(crate::Connection {
+        Ok(super::Connection {
             public_key: Some(public_key),
-            sender: Some(crate::Sender(send)),
-            receiver: Some(crate::Receiver(receive)),
+            sender: Some(super::Sender(send)),
+            receiver: Some(super::Receiver(receive)),
         })
     }
 
-    pub async fn accept(&self) -> Result<crate::Connection, String> {
+    pub async fn accept(&self) -> Result<super::Connection, String> {
         let connection = self
             .endpoint
             .accept()
             .await
             .unwrap()
             .await
-            .map_err(crate::to_string)?;
+            .map_err(super::to_string)?;
         let public_key = connection.remote_id().to_string();
         connection
             .accept_bi()
             .await
-            .map(|(send, receive)| crate::Connection {
+            .map(|(send, receive)| super::Connection {
                 public_key: Some(public_key),
-                sender: Some(crate::Sender(send)),
-                receiver: Some(crate::Receiver(receive)),
+                sender: Some(super::Sender(send)),
+                receiver: Some(super::Receiver(receive)),
             })
-            .map_err(crate::to_string)
+            .map_err(super::to_string)
     }
 }
