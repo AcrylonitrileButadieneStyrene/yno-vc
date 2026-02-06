@@ -19,6 +19,7 @@ invite.onclick = async () => {
 
     await sleep(250);
 
+    unsafeWindow.sendSessionCommand("say", [target]);
     chatInput.style.outline = "";
     chatInput.value = original;
 

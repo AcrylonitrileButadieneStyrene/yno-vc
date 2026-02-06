@@ -4,8 +4,6 @@ export interface Entry {
     // immediately assigned by the connector
     // requires identification for the acceptor
     player?: string,
-    // connector: boolean, default true, one time flag for identifying
-    identify: boolean,
 
     public_key: string,
     send: Sender,
@@ -18,10 +16,11 @@ export interface Entry {
     },
 
     expiration?: any,
+    shouldClose: boolean,
 }
 
 export const Entry = {
-    new(initiating: boolean, connection: Connection): Entry {
+    new(connection: Connection): Entry {
         const audio = {
             element: document.createElement('audio'),
             buffer: undefined,
@@ -40,11 +39,11 @@ export const Entry = {
         audio.element.play().catch(() => { });
 
         return {
-            identify: initiating,
             public_key: connection.take_public_key(),
             send: connection.take_send(),
             receive: connection.take_receive(),
-            audio
+            audio,
+            shouldClose: false,
         };
     }
 };

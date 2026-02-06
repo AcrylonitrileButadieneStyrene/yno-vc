@@ -1,6 +1,6 @@
 import { Connection, Network, State } from "./wasm";
 import { Entry, playAudio } from "./entry";
-import { getKeyForPlayer, setKey } from "./keys";
+import { getKeyForPlayer, getPlayerForKey, setKey } from "./keys";
 import { Player } from "./globals";
 import { patchPlayerEvents } from "./playerlist";
 import "./ui";
@@ -21,42 +21,29 @@ const checkInterval = setInterval(() => {
     clearInterval(checkInterval);
 
     state.init();
-    patchChatSend();
     patchChatReceive();
     patchPlayerEvents(state);
 }, 1_000);
-
-function patchChatSend() {
-    const original = unsafeWindow.chatInputActionFired;
-    unsafeWindow.chatInputActionFired = function () {
-        const input = document.getElementById("chatInput") as HTMLInputElement;
-        if (!input.dataset.global && input.value.trim() == "/voice.join")
-            input.value = `/voice.join:${public_key}`;
-
-        return original.apply(this, arguments);
-    };
-}
 
 function patchChatReceive() {
     const original = unsafeWindow.chatboxAddMessage;
     unsafeWindow.chatboxAddMessage = function (msg, _, player) {
         const parts = msg.split(":");
-        if (parts[0] == "/voice.join") {
-            const key = parts[1];
-            if (key != public_key) {
-                setKey(player, key);
-                connect(player, key);
-            }
-        } else if (parts[0] == "/voice.identify") {
-            const key = parts[1];
-            if (key != public_key) {
-                setKey(player, key);
 
-                const entry = [...connections].find(entry => entry.public_key == key);
-                if (entry) entry.player = player;
-                else console.warn(`No connection found for ${player}`);
-            }
-        }
+        do {
+            if (parts[0] != "/voice")
+                break;
+
+            const key = parts[1];
+            if (key == public_key)
+                break;
+
+            setKey(player, key);
+            const connection = [...connections].find(connection => connection.public_key == key);
+            if (connection)
+                connection.player = player;
+            else connect(player, key);
+        } while (false);
 
         return original.apply(this, arguments);
     };
@@ -75,9 +62,9 @@ async function connect(player: string, key: string) {
     outgoing.add(key);
     net.connect(key).then(connection => {
         console.log(`Connected to ${key}`);
-        setupConnection(true, connection).player = player;
-    }).catch(() => {
-        console.log(`Failed to connect to ${key}`);
+        setupConnection(connection).player = player;
+    }).catch(err => {
+        console.log(`Failed to connect to ${key}: ${err}`);
     }).then(() => {
         outgoing.delete(key)
     });
@@ -91,14 +78,15 @@ async function connect(player: string, key: string) {
     }
 })()
 
-function setupConnection(initiating: boolean, connection: Connection): Entry {
-    const entry = Entry.new(initiating, connection);
+function setupConnection(connection: Connection): Entry {
+    const entry = Entry.new(connection);
     receiveLoop(entry);
     connections.add(entry);
     return entry;
 }
 
 function closeConnection(entry: Entry, message?: string) {
+    entry.shouldClose = true;
     connections.delete(entry);
     if (message) {
         message = message.replaceAll("%player%", entry?.player || "an unidentified player");
@@ -117,7 +105,7 @@ async function trySend(entry: Entry, packet: { type: string, data?: any }) {
 
 async function receiveLoop(entry: Entry) {
     try {
-        for (; ;) {
+        while (!entry.shouldClose) {
             const packet = await entry.receive.read();
             const type = packet.get("type");
             const data = packet.get("data");
@@ -129,10 +117,11 @@ async function receiveLoop(entry: Entry) {
                         trySend(entry, { type: "Identify" })
                 },
                 Identify() {
-                    if (entry.identify !== true)
-                        return closeConnection(entry, `Voice disconnected %player% due to requesting identification`);
-                    entry.identify = false;
-                    unsafeWindow.sendSessionCommand("say", ["/voice.identify:" + public_key])
+                    const player = getPlayerForKey(entry.public_key);
+                    if (!player) return closeConnection(entry);
+
+                    unsafeWindow.showToastMessage(`${player} requires identification`);
+                    //unsafeWindow.sendSessionCommand("say", ["/voice:" + public_key])
                 },
                 VoiceData(data: any) {
                     const sound = new Uint8Array(data);
