@@ -10,25 +10,25 @@ for (const key of Object.values(keys)) {
 
 const forward = {};
 const reverse = {};
-for (const [player, key] of Object.entries(keys)) {
+for (const [uuid, key] of Object.entries(keys)) {
     if (duplicates.has(key))
         continue;
 
-    forward[player] = key;
-    reverse[key] = player
+    forward[uuid] = key;
+    reverse[key] = uuid;
 }
 
-export function getKeyForPlayer(player: string): string | undefined {
-    return forward[player];
+export function getKeyForUuid(uuid: string): string | undefined {
+    return forward[uuid];
 }
 
-export function getPlayerForKey(key: string): string | undefined {
+export function getUuidForKey(key: string): string | undefined {
     return reverse[key];
 }
 
-export function setKey(player: string, key: string) {
-    keys[player] = key;
-    forward[player] = key;
-    reverse[key] = player;
+export function setKey(uuid: string, key: string) {
+    keys[uuid] = key;
+    forward[uuid] = key;
+    reverse[key] = uuid;
     GM.setValue("keys", keys);
 }

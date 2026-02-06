@@ -3,7 +3,7 @@ import { Connection, Receiver, Sender } from "./wasm";
 export interface Entry {
     // immediately assigned by the connector
     // requires identification for the acceptor
-    player?: string,
+    uuid?: string,
 
     public_key: string,
     send: Sender,

@@ -1,8 +1,9 @@
 import { Connection, Network, State } from "./wasm";
 import { Entry, playAudio } from "./entry";
-import { getKeyForPlayer, getPlayerForKey, setKey } from "./keys";
+import { getKeyForUuid, getUuidForKey as getUuidForKey, setKey } from "./keys";
 import { Player } from "./globals";
 import { patchPlayerEvents } from "./playerlist";
+import { initPlayerData, resolvePlayer } from "./playerData";
 import "./ui";
 
 const key: string | undefined = await GM.getValue("secret_key");
@@ -21,13 +22,14 @@ const checkInterval = setInterval(() => {
     clearInterval(checkInterval);
 
     state.init();
+    initPlayerData();
     patchChatReceive();
     patchPlayerEvents(state);
 }, 1_000);
 
 function patchChatReceive() {
     const original = unsafeWindow.chatboxAddMessage;
-    unsafeWindow.chatboxAddMessage = function (msg, _, player) {
+    unsafeWindow.chatboxAddMessage = function (msg, _, uuid) {
         const parts = msg.split(":");
 
         do {
@@ -38,11 +40,11 @@ function patchChatReceive() {
             if (key == public_key)
                 break;
 
-            setKey(player, key);
+            setKey(uuid, key);
             const connection = [...connections].find(connection => connection.public_key == key);
             if (connection)
-                connection.player = player;
-            else connect(player, key);
+                connection.uuid = uuid;
+            else connect(uuid, key);
         } while (false);
 
         return original.apply(this, arguments);
@@ -50,19 +52,19 @@ function patchChatReceive() {
 }
 
 let outgoing = new Set();
-async function connect(player: string, key: string) {
+async function connect(uuid: string, key: string) {
     if (key == public_key)
         return;
     if (outgoing.has(key))
         return;
-    if ([...connections].find(entry => entry.player == player || entry.public_key == key))
+    if ([...connections].find(entry => entry.uuid == uuid || entry.public_key == key))
         return;
 
     console.log(`Connecting to ${key}`)
     outgoing.add(key);
     net.connect(key).then(connection => {
         console.log(`Connected to ${key}`);
-        setupConnection(connection).player = player;
+        setupConnection(connection).uuid = uuid;
     }).catch(err => {
         console.log(`Failed to connect to ${key}: ${err}`);
     }).then(() => {
@@ -89,7 +91,7 @@ function closeConnection(entry: Entry, message?: string) {
     entry.shouldClose = true;
     connections.delete(entry);
     if (message) {
-        message = message.replaceAll("%player%", entry?.player || "an unidentified player");
+        message = message.replaceAll("%player%", resolvePlayer(entry?.uuid)?.name || "an unidentified player");
 
         console.log(message);
     }
@@ -112,16 +114,23 @@ async function receiveLoop(entry: Entry) {
 
             (({
                 Hello() {
-                    entry.player = getKeyForPlayer(entry.public_key);
-                    if (!entry.player)
+                    entry.uuid = getKeyForUuid(entry.public_key);
+                    if (!entry.uuid)
                         trySend(entry, { type: "Identify" })
                 },
                 Identify() {
-                    const player = getPlayerForKey(entry.public_key);
-                    if (!player) return closeConnection(entry);
+                    const uuid = getUuidForKey(entry.public_key);
+                    if (!uuid) return closeConnection(entry);
 
-                    unsafeWindow.showToastMessage(`${player} requires identification`);
-                    //unsafeWindow.sendSessionCommand("say", ["/voice:" + public_key])
+                    const toast = unsafeWindow.showToastMessage(`${resolvePlayer(uuid).name} requires identification`);
+                    const icon = unsafeWindow.getSvgIcon("join", true);
+                    icon.className += " iconButton";
+                    icon.onclick = () => {
+                        // todo: make the button disabled when on cooldown
+                        unsafeWindow.sendSessionCommand("say", ["/voice:" + public_key])
+                        toast.remove();
+                    }
+                    toast.insertBefore(icon, toast.querySelector(".closeToast"))
                 },
                 VoiceData(data: any) {
                     const sound = new Uint8Array(data);
@@ -156,14 +165,14 @@ export async function onMicrophoneData(event: BlobEvent) {
 }
 
 export function onPlayerJoin(player: Player) {
-    const entry = [...connections].find(entry => entry.player == player.uuid);
+    const entry = [...connections].find(entry => entry.uuid == player.uuid);
     if (entry) {
         if (entry.expiration) {
             clearTimeout(entry.expiration)
             entry.expiration = undefined;
         }
     } else {
-        const key = getKeyForPlayer(player.uuid);
+        const key = getKeyForUuid(player.uuid);
         if (!key) return;
         if (key >= public_key)
             return; // let them connect to us instead
@@ -173,7 +182,7 @@ export function onPlayerJoin(player: Player) {
 }
 
 export function onPlayerLeave(player: string) {
-    const entry = [...connections].find(entry => entry.player == player);
+    const entry = [...connections].find(entry => entry.uuid == player);
     if (!entry) return;
 
     entry.expiration = setTimeout(() => {

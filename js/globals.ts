@@ -5,7 +5,7 @@ declare global {
         chatboxAddMessage(
             msg: string,
             type: number,
-            player: string,
+            uuid: string,
             ignoreNotify: boolean,
             mapId: number,
             prevMapId: number,
@@ -17,6 +17,7 @@ declare global {
             shouldScroll: boolean
         ): void,
         showToastMessage(message: string, icon?: any, iconFill?: any, systemName?: string, persist?: boolean): HTMLDivElement,
+        getSvgIcon(iconId: string, fill: boolean): HTMLDivElement;
         setPlayersTab(tab: any, saveConfig: boolean): void,
 
         chatInputActionFired(): void,
