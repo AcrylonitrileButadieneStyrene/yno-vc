@@ -20,17 +20,17 @@ impl State {
     pub fn init(&self) {}
 
     #[wasm_bindgen]
-    pub fn on_player_join(self, uuid: String) -> bool {
+    pub fn on_player_join(&self, uuid: String) -> bool {
         self.players.lock().insert(uuid)
     }
 
     #[wasm_bindgen]
-    pub fn on_player_leave(self, uuid: String) -> bool {
+    pub fn on_player_leave(&self, uuid: String) -> bool {
         self.players.lock().remove(&uuid)
     }
 
     #[wasm_bindgen]
-    pub fn on_players_cleared(self) {
+    pub fn on_players_cleared(&self) {
         self.players.lock().clear();
     }
 }

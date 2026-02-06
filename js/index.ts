@@ -2,14 +2,14 @@ import { Connection, Network, State } from "./wasm";
 import { Entry, playAudio } from "./entry";
 import { getKeyForPlayer, setKey } from "./keys";
 import { Player } from "./globals";
-import "./microphone";
 import { patchPlayerEvents } from "./playerlist";
+import "./ui";
 
 const key: string | undefined = await GM.getValue("secret_key");
 const net = await new Network(key).init();
 if (key == undefined)
     GM.setValue("secret_key", net.get_secret_key());
-const public_key = net.get_public_key();
+export const public_key = net.get_public_key();
 
 const state = new State();
 
@@ -135,7 +135,6 @@ async function receiveLoop(entry: Entry) {
                     unsafeWindow.sendSessionCommand("say", ["/voice.identify:" + public_key])
                 },
                 VoiceData(data: any) {
-                    console.log("received voice data");
                     const sound = new Uint8Array(data);
                     const { queue, element } = entry.audio;
                     queue.push(sound);

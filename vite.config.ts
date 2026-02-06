@@ -16,11 +16,10 @@ export default defineConfig({
         minify: true,
     },
     esbuild: {
-        banner: `/*
- * This file has been minified to reduce its file size.
- * A readable copy of the code is accessible at the link in the @source tag above.
- */`,
-        footer: ``,
+        banner: ""
+            + "/* This file has been minified to reduce its file size."
+            + " * A readable copy of the code is accessible at the link in the @source tag above."
+            + " */",
     },
     plugins: [
         viteStaticCopy({

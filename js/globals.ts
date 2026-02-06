@@ -17,6 +17,8 @@ declare global {
             shouldScroll: boolean
         ): void,
         showToastMessage(message: string, icon?: any, iconFill?: any, systemName?: string, persist?: boolean): HTMLDivElement,
+        setPlayersTab(tab: any, saveConfig: boolean): void,
+
         chatInputActionFired(): void,
         sendSessionCommand(command: string, commandParams: any[], callbackFunc?: Function, callbackCommand?: string): void,
 

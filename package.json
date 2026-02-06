@@ -1,12 +1,12 @@
 {
   "name": "yno_vc",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "userscript": {
     "name": "YNO Voice Chat",
     "match": "*://ynoproject.net/*",
     "source": "https://github.com/AcrylonitrileButadieneStyrene/yno-vc",
     "resource": {
-      "wasm": "https://raw.githubusercontent.com/AcrylonitrileButadieneStyrene/yno-vc/refs/heads/builds/yno_vc.wasm"
+      "wasm": "http://localhost:3000/yno_vc.wasm?nonce=0"
     },
     "updateURL": "https://raw.githubusercontent.com/AcrylonitrileButadieneStyrene/yno-vc/refs/heads/builds/yno_vc.meta.js",
     "downloadURL": "https://raw.githubusercontent.com/AcrylonitrileButadieneStyrene/yno-vc/refs/heads/builds/yno_vc.user.js",
