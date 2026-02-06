@@ -72,7 +72,7 @@ async function connect(player: string, key: string) {
 
 (async function () {
     for (; ;) {
-        await net.accept().then(setupConnection.bind(null, false)).catch(err => {
+        await net.accept().then(setupConnection).catch(err => {
             console.log(`Failed accepting connection: ` + err)
         })
     }

@@ -1,9 +1,9 @@
 use std::str::FromStr;
 
-use iroh::{Endpoint, PublicKey, SecretKey, endpoint::Builder};
+use iroh::{Endpoint, PublicKey, SecretKey, address_lookup::PkarrResolver, endpoint::Builder};
 use wasm_bindgen::prelude::*;
 
-const ALPN: &[u8] = b"yno_vc";
+const ALPN: &[u8] = b"yno_vc/1";
 
 #[wasm_bindgen]
 pub struct Network {
@@ -14,7 +14,11 @@ pub struct Network {
 impl Network {
     #[wasm_bindgen(constructor)]
     pub fn new(secret_key: Option<String>) -> Self {
-        let mut builder = Endpoint::builder().alpns(vec![ALPN.to_vec()]);
+        let mut builder = Endpoint::builder()
+            .alpns(vec![ALPN.to_vec()])
+            .address_lookup(PkarrResolver::builder(
+                "https://relay.pkarr.org/".parse().unwrap(),
+            ));
 
         if let Some(secret_key) = secret_key
             && let Ok(secret_key) = SecretKey::from_str(&secret_key)

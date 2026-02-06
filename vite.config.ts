@@ -17,8 +17,8 @@ export default defineConfig(({ mode }) => ({
     },
     esbuild: {
         banner: ""
-            + "/* This file has been minified to reduce its file size."
-            + " * A readable copy of the code is accessible at the link in the @source tag above."
+            + "/* This file has been minified to reduce its file size.\n"
+            + " * A readable copy of the code is accessible at the link in the @source tag above.\n"
             + " */",
     },
     plugins: [

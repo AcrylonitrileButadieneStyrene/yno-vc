@@ -12,6 +12,7 @@ pub struct Connection {
 
 #[wasm_bindgen]
 impl Connection {
+    #[wasm_bindgen]
     pub fn take_public_key(&mut self) -> Option<String> {
         self.public_key.take()
     }
