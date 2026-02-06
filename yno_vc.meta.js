@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         YNO Voice Chat
-// @version      0.0.1
+// @version      0.0.2
 // @license      MIT OR Apache-2.0
 // @source       https://github.com/AcrylonitrileButadieneStyrene/yno-vc
 // @supportURL   https://github.com/AcrylonitrileButadieneStyrene/yno-vc/issues
