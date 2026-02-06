@@ -1,6 +1,10 @@
 use std::str::FromStr;
 
-use iroh::{Endpoint, PublicKey, SecretKey, address_lookup::PkarrResolver, endpoint::Builder};
+use iroh::{
+    Endpoint, PublicKey, SecretKey,
+    address_lookup::{PkarrPublisher, PkarrResolver},
+    endpoint::Builder,
+};
 use wasm_bindgen::prelude::*;
 
 const ALPN: &[u8] = b"yno_vc/1";
@@ -17,6 +21,9 @@ impl Network {
         let mut builder = Endpoint::builder()
             .alpns(vec![ALPN.to_vec()])
             .address_lookup(PkarrResolver::builder(
+                "https://relay.pkarr.org/".parse().unwrap(),
+            ))
+            .address_lookup(PkarrPublisher::builder(
                 "https://relay.pkarr.org/".parse().unwrap(),
             ));
 
