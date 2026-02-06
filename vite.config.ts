@@ -5,7 +5,7 @@ import monkey from "vite-plugin-monkey"
 
 import * as manifest from "./package.json";
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
     build: {
         lib: {
             name: manifest.name,
@@ -34,10 +34,17 @@ export default defineConfig({
         tla(),
         monkey({
             entry: "js/index.ts",
-            userscript: manifest.userscript,
+            userscript: {
+                ...manifest.userscript,
+                resource: {
+                    wasm: mode == "production"
+                        ? "https://raw.githubusercontent.com/AcrylonitrileButadieneStyrene/yno-vc/refs/heads/builds/yno_vc.wasm"
+                        : "http://localhost:3000/yno_vc.wasm?nonce=" + Math.floor(Math.random() * Number.MAX_SAFE_INTEGER),
+                }
+            },
             build: {
                 metaFileName: true,
             }
         }),
     ],
-});
+}));
