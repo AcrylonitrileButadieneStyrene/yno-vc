@@ -1,10 +1,12 @@
+import "./noCache";
+import "./ui";
+
 import { Connection, Network, State } from "./wasm";
 import { Entry, playAudio } from "./entry";
 import { getKeyForUuid, getUuidForKey as getUuidForKey, setKey } from "./keys";
 import { Player } from "./globals";
 import { patchPlayerEvents } from "./playerlist";
 import { initPlayerData, resolvePlayer } from "./playerData";
-import "./ui";
 import { recorder, restartRecorder } from "./ui/microphone";
 
 const key: string | undefined = await GM.getValue("secret_key");
