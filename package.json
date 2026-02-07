@@ -1,6 +1,6 @@
 {
   "name": "yno_vc",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "userscript": {
     "name": "YNO Voice Chat",
     "match": "*://ynoproject.net/*",

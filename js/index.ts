@@ -5,6 +5,7 @@ import { Player } from "./globals";
 import { patchPlayerEvents } from "./playerlist";
 import { initPlayerData, resolvePlayer } from "./playerData";
 import "./ui";
+import { recorder, restartRecorder } from "./ui/microphone";
 
 const key: string | undefined = await GM.getValue("secret_key");
 const net = await new Network(key).init();
@@ -83,7 +84,10 @@ async function connect(uuid: string, key: string) {
 function setupConnection(connection: Connection): Entry {
     const entry = Entry.new(connection);
     receiveLoop(entry);
+
+    recorder.stop();
     connections.add(entry);
+    restartRecorder();
     return entry;
 }
 

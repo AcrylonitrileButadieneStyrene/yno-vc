@@ -1,6 +1,6 @@
 import { onMicrophoneData } from "../index";
 
-let recorder: MediaRecorder;
+export let recorder: MediaRecorder;
 
 const button = document.createElement("button");
 button.textContent = "V";
@@ -16,7 +16,7 @@ button.addEventListener("click", () => {
         button.style.color = "green";
         if (!recorder)
             initRecorder();
-        else recorder.start(100);
+        recorder.start(100);
     } else {
         button.style.color = "red";
         recorder.stop();
@@ -29,5 +29,12 @@ async function initRecorder() {
         { mimeType: 'audio/webm; codecs=opus', audioBitsPerSecond: 6000 }
     );
     recorder.addEventListener("dataavailable", onMicrophoneData);
-    recorder.start(100);
+}
+
+export function restartRecorder() {
+    if (enabled) recorder?.start();
+}
+
+export function stopRecorder() {
+    recorder.stop();
 }
