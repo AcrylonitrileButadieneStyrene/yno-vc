@@ -38,7 +38,7 @@ export default defineConfig(({ mode }) => ({
                 ...manifest.userscript,
                 resource: {
                     wasm: mode == "production"
-                        ? "https://raw.githubusercontent.com/AcrylonitrileButadieneStyrene/yno-vc/refs/heads/builds/yno_vc.wasm"
+                        ? "https://raw.githubusercontent.com/AcrylonitrileButadieneStyrene/yno-vc/refs/heads/builds/yno_vc.wasm?version=" + manifest.version
                         : "http://localhost:3000/yno_vc.wasm?nonce=" + Math.floor(Math.random() * Number.MAX_SAFE_INTEGER),
                 }
             },
