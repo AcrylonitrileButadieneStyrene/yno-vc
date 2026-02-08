@@ -16,7 +16,7 @@ button.addEventListener("click", () => {
         button.style.color = "green";
         if (!recorder)
             initRecorder();
-        recorder.start(100);
+        else recorder.start(100);
     } else {
         button.style.color = "red";
         recorder.stop();
@@ -29,6 +29,7 @@ async function initRecorder() {
         { mimeType: 'audio/webm; codecs=opus', audioBitsPerSecond: 6000 }
     );
     recorder.addEventListener("dataavailable", onMicrophoneData);
+    recorder.start(100);
 }
 
 export function restartRecorder() {
