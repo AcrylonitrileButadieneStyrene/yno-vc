@@ -34,7 +34,3 @@ async function initRecorder() {
 export function restartRecorder() {
     if (enabled) recorder?.start();
 }
-
-export function stopRecorder() {
-    recorder.stop();
-}

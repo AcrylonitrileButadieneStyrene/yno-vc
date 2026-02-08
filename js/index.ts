@@ -87,7 +87,7 @@ function setupConnection(connection: Connection): Entry {
     const entry = Entry.new(connection);
     receiveLoop(entry);
 
-    recorder.stop();
+    recorder?.stop();
     connections.add(entry);
     restartRecorder();
     return entry;
